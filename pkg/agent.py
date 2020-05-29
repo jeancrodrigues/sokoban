@@ -49,23 +49,11 @@ class Agent:
         self.model = model
 
         self.prob = Problem()
-        self.prob.createMaze(9, 9)
-        self.prob.mazeBelief.putVerticalWall(0,1,0)
-        self.prob.mazeBelief.putVerticalWall(0,0,1)
-        self.prob.mazeBelief.putVerticalWall(5,8,1)
-        self.prob.mazeBelief.putVerticalWall(5,5,2)
-        self.prob.mazeBelief.putVerticalWall(8,8,2)
-
-        self.prob.mazeBelief.putHorizontalWall(4,7,0)
-        self.prob.mazeBelief.putHorizontalWall(7,7,1)
-        self.prob.mazeBelief.putHorizontalWall(3,5,2)
-        self.prob.mazeBelief.putHorizontalWall(3,5,3)
-        self.prob.mazeBelief.putHorizontalWall(7,7,3)
-
-        self.prob.mazeBelief.putVerticalWall(6,7,4)
-        self.prob.mazeBelief.putVerticalWall(5,6,5)
-        self.prob.mazeBelief.putVerticalWall(5,7,7)
-
+        self.prob.createMaze(6, 6)
+        
+        self.prob.mazeBelief.putVerticalWall(2,4,3)
+        self.prob.mazeBelief.putHorizontalWall(0,1,2)
+        
         # Posiciona fisicamente o agente no estado inicial
         initial = self.positionSensor()
         self.prob.defInitialState(initial.row, initial.col)
@@ -74,8 +62,8 @@ class Agent:
         self.currentState = self.prob.initialState
 
         # Define o estado objetivo
-        self.prob.defGoalState(2, 8)
-        self.model.setGoalPos(2,8)
+        self.prob.defGoalState(5, 5)
+        self.model.setGoalPos(5,5)
 
         # Plano de busca
         self.plan = None
@@ -202,7 +190,7 @@ class Agent:
             printExplored(explored)
 
             # Obtem ações possíveis para o estado selecionado para expansão
-            actions = self.prob.possibleActions(selState) # actions é do tipo [-1, -1, -1, 1, 1, -1, -1, -1]
+            actions = self.prob.possibleActionsWithoutCollaterals(selState) # actions é do tipo [-1, -1, -1, 1, 1, -1, -1, -1]
             
             for actionIndex, act in enumerate(actions):
                 if(act < 0): # Ação não é possível

@@ -130,6 +130,8 @@ class Problem:
         row = state.row
         col = state.col 
 
+        print( self.mazeBelief.maxRows )
+        print( self.mazeBelief.maxColumns )
         # Esta no limite superior, não pode ir para N
         if row == 0: 
             actions[N] = -1
@@ -145,13 +147,13 @@ class Problem:
 
         walls = self.mazeBelief.walls
         # Testa se há parede nas direções
-        if walls[row - 1][col] == 1: # Norte
+        if actions[N] != -1 and walls[row - 1][col] == 1: # Norte
             actions[N] = -1
-        if walls[row][col + 1] == 1: # Leste
+        if actions[L] != -1 and walls[row][col + 1] == 1: # Leste
             actions[L] = -1
-        if walls[row + 1][col] == 1: # Sul
+        if actions[S] != -1 and walls[row + 1][col] == 1: # Sul
             actions[S] = -1
-        if walls[row ][col - 1] == 1: # Oeste
+        if actions[O] != -1 and walls[row ][col - 1] == 1: # Oeste
             actions[O] = -1
 
         return actions
