@@ -163,17 +163,20 @@ class Problem:
 
     def isBlockAction(self, state):
         walls = self.mazeBelief.walls
+        blocked = False
         for box in state.boxes:
+            if box in self.goalState.boxes:
+                return False
+
             if box[0] == 0 or box[0] == self.mazeBelief.maxRows - 1:
-                if box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1:
-                    return True
+                if box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1 :
+                    blocked = True
                 elif walls[box[0]][box[1]-1] == 1 or  walls[box[0]][box[1]+1] == 1:
-                    return True
+                    blocked = True
             elif box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1:
                 if walls[box[0]-1][box[1]] == 1 or  walls[box[0]+1][box[1]] == 1:
-                    return True
-        return False
-            
+                    blocked = True
+        return blocked            
 
     def getActionCost(self, action):
         """Retorna o custo da ação.
