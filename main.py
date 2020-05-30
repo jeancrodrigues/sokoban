@@ -18,6 +18,8 @@ def main():
     model.setAgentPos(3,0)
     model.addBoxPos(1,1)
     model.addBoxPos(2,2)
+    model.addBoxPos(3,4)
+    model.addBoxPos(4,1)
     
     # Cria um agente
     agent = Agent(model)

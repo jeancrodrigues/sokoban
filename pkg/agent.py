@@ -66,9 +66,11 @@ class Agent:
         self.currentState = self.prob.initialState
 
         # Define o estado objetivo
-        self.prob.defGoalState(5, 5,[(5,5),(5,4)])
+        self.prob.defGoalState(5, 5,[(5,2),(5,3),(5,4),(5,5)])
         self.model.addGoalPos(5,5)
         self.model.addGoalPos(5,4)
+        self.model.addGoalPos(5,3)
+        self.model.addGoalPos(5,2)
 
         # Plano de busca
         self.plan = None
