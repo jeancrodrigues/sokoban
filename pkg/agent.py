@@ -56,25 +56,17 @@ class Agent:
         
         # Posiciona fisicamente o agente no estado inicial
         initial = self.positionSensor()
-        self.prob.defInitialState(initial.row, initial.col)
+        self.prob.defInitialState(initial.row, initial.col,initial.boxes)
         
         # Define o estado atual do agente = estado inicial
         self.currentState = self.prob.initialState
 
         # Define o estado objetivo
-        self.prob.defGoalState(5, 5)
-        self.model.setGoalPos(5,5)
+        self.prob.defGoalState(5, 5,[(5,5)])
+        self.model.addGoalPos(5,5)
 
         # Plano de busca
         self.plan = None
-
-    def printPlan(self):
-        """Apresenta o plano de busca."""    
-        print("--- PLANO ---")
-        # @TODO: Implementação do aluno
-        for plannedAction in self.plan:
-            print("{} > ".format(action[plannedAction]),end='')
-        print("FIM\n\n")
 
     def deliberate(self):
         # Primeira chamada, realiza busca para elaborar um plano
@@ -121,7 +113,7 @@ class Agent:
         """Simula um sensor que realiza a leitura do posição atual no ambiente e traduz para uma instância da classe Estado.
         @return estado que representa a posição atual do agente no labirinto."""
         pos = self.model.agentPos
-        return State(pos[0],pos[1])
+        return State(pos[0],pos[1],self.model.boxPos)
 
     def hn1(self, state):
         """Implementa uma heurísitca - número 1 - para a estratégia A*.
@@ -190,7 +182,7 @@ class Agent:
             printExplored(explored)
 
             # Obtem ações possíveis para o estado selecionado para expansão
-            actions = self.prob.possibleActionsWithoutCollaterals(selState) # actions é do tipo [-1, -1, -1, 1, 1, -1, -1, -1]
+            actions = self.prob.possibleActions(selState) # actions é do tipo [-1, -1, -1, 1, 1, -1, -1, -1]
             
             for actionIndex, act in enumerate(actions):
                 if(act < 0): # Ação não é possível
@@ -269,3 +261,11 @@ class Agent:
         else:
             print("### Solução NÃO encontrada ###")
             return None
+
+    def printPlan(self):
+        """Apresenta o plano de busca."""    
+        print("--- PLANO ---")
+        # @TODO: Implementação do aluno
+        for plannedAction in self.plan:
+            print("{} > ".format(action[plannedAction]),end='')
+        print("FIM\n\n")

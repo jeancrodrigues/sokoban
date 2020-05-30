@@ -20,8 +20,10 @@ class Model:
         self.columns = columns
 
         self.agentPos = [0,0]
-        self.goalPos = [0,0]
+        self.goalPos = []
 
+        self.boxes = [[0 for j in range(columns)] for i in range(rows)]
+        self.boxPos = []
         self.view = View(self)
         self.maze = Maze(rows,columns)
 
@@ -46,7 +48,7 @@ class Model:
         self.agentPos[1] = col
         return 1
     
-    def setGoalPos(self, row, col):
+    def addGoalPos(self, row, col):
         """Utilizada para colocar o objetivo na posição inicial.
         @param row: a linha onde o objetivo será situado.
         @param col: a coluna onde o objetivo será situado.
@@ -59,9 +61,12 @@ class Model:
         if self.maze.walls[row][col] == 1:
             return -1
 
-        self.goalPos[0] = row
-        self.goalPos[1] = col
+        self.goalPos.append( ( row, col ) )
         return 1
+
+    def addBoxPos(self, row, col):
+        self.boxes[row][col] = 1
+        self.boxPos.append((row, col))
 
     def go(self, direction):
         """Coloca o agente na posição solicitada pela ação go, desde que seja possível.

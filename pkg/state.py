@@ -2,20 +2,18 @@ class State:
     """Representa um estado do problema.
     Neste caso, é um par ordenado que representa a linha e a coluna onde se encontra o agente no labirinto."""
 
-    def __init__(self, row, col):
+    def __init__(self, row, col, boxes):
         self.row = row
         self.col = col
-
-    def setRowCol(self, row, col):
-        #Esse método não é necessário em Python, pois os atributos podem ser acessados diretamente
-        self.row = row
-        self.col = col
+        self.boxes = boxes
 
     def __eq__(self, other):
-        if self.row == other.row and self.col == other.col:
-            return True
-        else:
-            return False
+        sum = 0
+        for box in self.boxes:
+            for otherbox in other.boxes:
+                if box == otherbox:
+                    sum += 1
+        return sum == len(other.boxes)
 
     def __str__(self): 
         # Permite fazer um print(state) diretamente

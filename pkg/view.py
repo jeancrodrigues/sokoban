@@ -12,7 +12,7 @@ class View:
     def drawHeader(self):
         print("--- Estado do Ambiente ---")
         print("Posição agente  : {0},{1}".format(self.model.agentPos[0],self.model.agentPos[1]))
-        print("Posição objetivo: {0},{1}\n".format(self.model.goalPos[0],self.model.goalPos[1]))
+        # print("Posição objetivo: {0},{1}\n".format(self.model.goalPos[0],self.model.goalPos[1]))
 
         # Imprime números das colunas
         print("   ", end='')
@@ -31,11 +31,13 @@ class View:
 
             for col in range(self.model.maze.maxColumns):
                 if self.model.maze.walls[row][col] == 1: 
-                    print("|XXX",end='')    # Desenha parede
+                    print("||||",end='')    # Desenha parede
+                elif self.model.boxes[row][col] == 1:
+                    print("| # ",end='')    # Desenha caixa    
                 elif self.model.agentPos[0] == row and self.model.agentPos[1] == col:
-                    print("|  A",end='')    # Desenha agente
-                elif self.model.goalPos[0] == row and self.model.goalPos[1] == col:
-                    print("|  G",end='')    # Desenha objetivo
+                    print("| A ",end='')    # Desenha agente
+                elif any( ( row, col ) == pos for pos in self.model.goalPos ):
+                    print("| G ",end='')    # Desenha objetivo
                 else:
                     print("|   ",end='')    # Desenha vazio
             
