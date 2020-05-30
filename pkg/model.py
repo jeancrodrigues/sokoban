@@ -97,4 +97,21 @@ class Model:
             row = self.agentPos[0]
             col = self.agentPos[1]
 
+        # Verifica se empurrou alguma caixa
+        if self.boxes[row][col] == 1:
+            boxRow = row
+            boxCol = col
+            if direction == N:
+                boxRow -= 1
+            if direction == L:
+                boxCol += 1
+            if direction == S:
+                boxRow += 1
+            if direction == O:
+                boxCol -= 1
+            self.boxes[row][col] = 0
+            self.boxes[boxRow][boxCol] = 1
+            self.boxPos.remove((row, col))
+            self.boxPos.append((boxRow, boxCol))
+
         self.setAgentPos(row, col)
