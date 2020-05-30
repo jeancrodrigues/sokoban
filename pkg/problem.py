@@ -142,8 +142,8 @@ class Problem:
         if actions[S] != -1 : 
             boxSplus1 = any( [ ( row + 1 , col ) == box for box in boxes ] )
             boxSplus2 = any( [ ( row + 2 , col ) == box for box in boxes ] )
-            limitSplus2 = row + 2 < self.mazeBelief.maxRows - 1
-            wallSplus2 = row + 2 <= self.mazeBelief.maxRows and walls[row + 2][col] == 1
+            limitSplus2 = row + 2 > self.mazeBelief.maxRows - 1
+            wallSplus2 = row + 2 <= self.mazeBelief.maxRows - 1 and walls[row + 2][col] == 1
 
             if ( boxSplus1 and limitSplus2 ) or ( boxSplus1 and wallSplus2 ) or ( boxSplus1 and boxSplus2 ): # Sul
                 actions[S] = -1
