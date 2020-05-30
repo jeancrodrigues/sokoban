@@ -4,7 +4,7 @@ from state import State
 from cardinal import action
 from tree import TreeNode
 
-MAX_BOX_COST = 20
+MAX_BOX_COST = 30
 
 UNIFORME_COST = 0
 A_START_1 = 1
@@ -66,11 +66,12 @@ class Agent:
         self.currentState = self.prob.initialState
 
         # Define o estado objetivo
-        self.prob.defGoalState(0, 0,[(5,2),(5,3),(5,4),(5,5)])
+        self.prob.defGoalState(0, 0,[(5,1),(5,2),(5,3),(5,4),(5,5)])
         self.model.addGoalPos(5,5)
         self.model.addGoalPos(5,4)
         self.model.addGoalPos(5,3)
         self.model.addGoalPos(5,2)
+        self.model.addGoalPos(5,1)
 
         # Plano de busca
         self.plan = None
@@ -183,7 +184,7 @@ class Agent:
 
         while len(frontier): # Fronteira não vazia
             print("\n*****\n***** Início iteração\n*****\n")
-            printFrontier(frontier)
+            #printFrontier(frontier)
 
             selNode = frontier.pop(0) # retira nó da fronteira
             selState = selNode.state
@@ -194,7 +195,7 @@ class Agent:
                 solution = selNode
                 break
             explored.append(selState)
-            printExplored(explored)
+            #printExplored(explored)
 
             # Obtem ações possíveis para o estado selecionado para expansão
             actions = self.prob.possibleActions(selState) # actions é do tipo [-1, -1, -1, 1, 1, -1, -1, -1]
