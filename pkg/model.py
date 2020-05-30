@@ -84,19 +84,6 @@ class Model:
         if direction == O:
             col -= 1
 
-        if direction == NE:
-            row -= 1
-            col += 1
-        if direction == NO:
-            row -= 1
-            col -= 1
-        if direction == SE:
-            row += 1
-            col += 1
-        if direction == SO:
-            row += 1
-            col -= 1
-
         # Verifica se está fora do grid
         if col < 0 or col >= self.maze.maxColumns:
             row = self.agentPos[0]

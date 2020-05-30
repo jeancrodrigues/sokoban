@@ -65,17 +65,21 @@ class Problem:
             row = state.row
             col = state.col
 
+        boxes = []
+        for box in state.boxes:
+            boxes.append((box[0],box[1]))
+
         # verifica caixa e se pode empurrar
-        if ( row, col ) in state.boxes :
+        if ( row, col ) in boxes :
             rowBox = row + rowIncrement[action]
             colBox = col + colIncrement[action]
             if rowBox < 0 or colBox < 0 or rowBox > self.mazeBelief.maxRows - 1 or colBox > self.mazeBelief.maxColumns -1 or self.mazeBelief.walls[rowBox][colBox] == 1:
-                return state
+                return State( state.row, state.col, boxes )
             else:
-                state.boxes.remove((row,col))
-                state.boxes.append((rowBox, colBox))
+                boxes.remove((row,col))
+                boxes.append((rowBox, colBox))
         
-        return State(row, col, state.boxes)
+        return State(row, col, boxes)
 
     def possibleActions(self, state):
         """Retorna as ações possíveis de serem executadas em um estado, desconsiderando movimentos na diagonal.

@@ -7,6 +7,7 @@ from tree import TreeNode
 UNIFORME_COST = 0
 A_START_1 = 1
 A_START_2 = 2
+A_START_3 = 3
 
 # Funções utilitárias
 def printExplored(explored):
@@ -62,8 +63,10 @@ class Agent:
         self.currentState = self.prob.initialState
 
         # Define o estado objetivo
-        self.prob.defGoalState(5, 5,[(5,5)])
+        self.prob.defGoalState(5, 5,[(5,5),(5,0),(5,4)])
         self.model.addGoalPos(5,5)
+        self.model.addGoalPos(5,0)
+        self.model.addGoalPos(5,4)
 
         # Plano de busca
         self.plan = None
@@ -72,7 +75,7 @@ class Agent:
         # Primeira chamada, realiza busca para elaborar um plano
         # @TODO: Implementação do aluno
         if self.counter == -1: 
-            self.plan = self.cheapestFirstSearch(0) # 0 = custo uniforme, 1 = A* com colunas, 2 = A* com dist Euclidiana
+            self.plan = self.cheapestFirstSearch(3) # 0 = custo uniforme, 1 = A* com colunas, 2 = A* com dist Euclidiana
             if self.plan != None:
                 self.printPlan()
             else:
@@ -131,6 +134,14 @@ class Agent:
         distRow = abs(state.row - self.prob.goalState.row)
         squared = distRow**2 + distCol**2
         return squared ** 0.5
+
+    def hn(self, state):
+        goalBoxes = self.prob.goalState.boxes
+        h = 0
+        for goalBox in goalBoxes:
+            for box in state.boxes:
+                h += abs( goalBox[0] - box[0] ) + abs( goalBox[0] - box[0] ) + abs( state.row - box[0] ) + abs( state.col - box[1] )
+        return h
 
     def cheapestFirstSearch(self, searchType):
         """Realiza busca com a estratégia de custo uniforme ou A* conforme escolha realizada na chamada.
@@ -203,6 +214,8 @@ class Agent:
                     child.setGnHn(gnChild, self.hn1(sucState) )
                 elif searchType == A_START_2:
                     child.setGnHn(gnChild, self.hn2(sucState) )
+                elif searchType == A_START_3:
+                    child.setGnHn(gnChild, self.hn(sucState) )
 
                 child.action = actionIndex
                 # INSERE NÓ FILHO NA FRONTEIRA (SE SATISFAZ CONDIÇÕES)
@@ -210,7 +223,7 @@ class Agent:
                 # Testa se estado do nó filho foi explorado
                 alreadyExplored = False
                 for node in explored:
-                    if(child.state == node):
+                    if(child.state == node and child.state.row == node.row and child.state.col == node.col ):
                         alreadyExplored = True
                         break
 
@@ -219,7 +232,7 @@ class Agent:
                 nodeFront = None
                 if not alreadyExplored:
                     for node in frontier:
-                        if(child.state == node.state):
+                        if(child.state == node.state and child.state.row == node.state.row and child.state.col == node.state.col ):
                             nodeFront = node
                             break
                 # Se ainda não foi explorado
@@ -229,6 +242,8 @@ class Agent:
                         frontier.append(child)
                         frontier.sort(key=lambda x: x.getFn()) # Ordena a fronteira pelo f(n), ascendente
                         treeNodesCt += 1
+                        # for f in frontier:
+                        #     print(f.getFn(),end=' ')
                     else:
                         # Se já está na fronteira temos que ver se é melhor
                         if nodeFront.getFn() > child.getFn():       # Nó da fronteira tem custo maior que o filho
