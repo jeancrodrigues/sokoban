@@ -17,7 +17,6 @@ def main():
     # Define a posição inicial do agente no ambiente - corresponde ao estado inicial
     model.setAgentPos(3,0)
     model.addBoxPos(1,1)
-    model.addBoxPos(1,3)
     model.addBoxPos(2,2)
     model.addBoxPos(3,4)
     model.addBoxPos(4,1)

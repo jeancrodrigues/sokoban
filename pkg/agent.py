@@ -4,10 +4,13 @@ from state import State
 from cardinal import action
 from tree import TreeNode
 
+MAX_BOX_COST = 20
+
 UNIFORME_COST = 0
 A_START_1 = 1
 A_START_2 = 2
 A_START_3 = 3
+A_START_4 = 3
 
 # Funções utilitárias
 def printExplored(explored):
@@ -64,9 +67,7 @@ class Agent:
 
         # Define o estado objetivo
         self.prob.defGoalState(0, 0,[(5,2),(5,3),(5,4),(5,5)])
-
         self.model.addGoalPos(5,5)
-        self.model.addGoalPos(5,0)
         self.model.addGoalPos(5,4)
         self.model.addGoalPos(5,3)
         self.model.addGoalPos(5,2)
@@ -222,13 +223,18 @@ class Agent:
 
                 child.action = actionIndex
                 # INSERE NÓ FILHO NA FRONTEIRA (SE SATISFAZ CONDIÇÕES)
-
-                # Testa se estado do nó filho foi explorado
                 alreadyExplored = False
-                for node in explored:
-                    if(child.state == node and child.state.row == node.row and child.state.col == node.col ):
-                        alreadyExplored = True
-                        break
+
+                if selNode.gn > ( len( selNode.state.boxes ) * MAX_BOX_COST ) or self.prob.isBlockAction(selState):
+                    explored.append(selState)
+                    alreadyExplored = True
+                
+                # Testa se estado do nó filho foi explorado
+                if not alreadyExplored:
+                    for node in explored:
+                        if(child.state == node and child.state.row == node.row and child.state.col == node.col ):
+                            alreadyExplored = True
+                            break
 
                 # Testa se estado do nó filho está na fronteira, caso esteja
                 # guarda o nó existente em nFront
@@ -242,11 +248,11 @@ class Agent:
                 if not alreadyExplored:
                     # e não está na fronteira, adiciona à fronteira
                     if nodeFront == None:
+                        # adiciona na fronteira se a acao nao bloqueia a solucao
                         frontier.append(child)
                         frontier.sort(key=lambda x: x.getFn()) # Ordena a fronteira pelo f(n), ascendente
                         treeNodesCt += 1
-                        # for f in frontier:
-                        #     print(f.getFn(),end=' ')
+                        
                     else:
                         # Se já está na fronteira temos que ver se é melhor
                         if nodeFront.getFn() > child.getFn():       # Nó da fronteira tem custo maior que o filho
