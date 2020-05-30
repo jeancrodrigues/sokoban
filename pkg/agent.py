@@ -63,9 +63,8 @@ class Agent:
         self.currentState = self.prob.initialState
 
         # Define o estado objetivo
-        self.prob.defGoalState(5, 5,[(5,5),(5,0),(5,4)])
+        self.prob.defGoalState(5, 5,[(5,5),(5,4)])
         self.model.addGoalPos(5,5)
-        self.model.addGoalPos(5,0)
         self.model.addGoalPos(5,4)
 
         # Plano de busca
@@ -239,9 +238,14 @@ class Agent:
                 if not alreadyExplored:
                     # e não está na fronteira, adiciona à fronteira
                     if nodeFront == None:
-                        frontier.append(child)
-                        frontier.sort(key=lambda x: x.getFn()) # Ordena a fronteira pelo f(n), ascendente
-                        treeNodesCt += 1
+                        # adiciona na fronteira se a acao nao bloqueia a solucao
+                        if not self.prob.isBlockAction(child.state):
+                            frontier.append(child)
+                            frontier.sort(key=lambda x: x.getFn()) # Ordena a fronteira pelo f(n), ascendente
+                            treeNodesCt += 1
+                        else:
+                            child.remove()
+                            explored.append(child.state)
                         # for f in frontier:
                         #     print(f.getFn(),end=' ')
                     else:

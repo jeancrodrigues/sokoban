@@ -123,8 +123,6 @@ class Problem:
         # Testa se há caixas nas direções ( caixa e limite ) , ( caixa e parede ), ( caixa e caixa )
         boxes = state.boxes
 
-        
-
         if actions[N] != -1:
             boxNminus1 = any( [ ( row - 1 , col ) == box for box in boxes ] )
             boxNminus2 = any( [ ( row - 2 , col ) == box for box in boxes ] )
@@ -162,6 +160,20 @@ class Problem:
                 actions[O] = -1
 
         return actions
+
+    def isBlockAction(self, state):
+        walls = self.mazeBelief.walls
+        for box in state.boxes:
+            if box[0] == 0 or box[0] == self.mazeBelief.maxRows - 1:
+                if box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1:
+                    return True
+                elif walls[box[0]][box[1]-1] == 1 or  walls[box[0]][box[1]+1] == 1:
+                    return True
+            elif box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1:
+                if walls[box[0]-1][box[1]] == 1 or  walls[box[0]+1][box[1]] == 1:
+                    return True
+        return False
+            
 
     def getActionCost(self, action):
         """Retorna o custo da ação.
