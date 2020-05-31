@@ -6,6 +6,7 @@ class State:
         self.row = row
         self.col = col
         self.boxes = boxes
+        self.boxes.sort()
 
     def __eq__(self, other):
         sum = 0

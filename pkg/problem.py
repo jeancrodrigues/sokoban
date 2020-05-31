@@ -161,11 +161,11 @@ class Problem:
 
         return actions
 
-    def isBlockAction(self, state):
+    def isBlockAction(self, state): # testa se alguma caixa está em um canto da parede ou limite
         walls = self.mazeBelief.walls
         blocked = False
         for box in state.boxes:
-            if box in self.goalState.boxes:
+            if box in self.goalState.boxes: # permite bloquear se for objetivo
                 return False
 
             if box[0] == 0 or box[0] == self.mazeBelief.maxRows - 1:

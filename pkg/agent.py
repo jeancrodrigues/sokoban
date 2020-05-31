@@ -66,9 +66,9 @@ class Agent:
         self.currentState = self.prob.initialState
 
         # Define o estado objetivo
-        self.prob.defGoalState(0, 0,[(5,1),(5,2),(5,3),(5,4),(5,5)])
-        self.model.addGoalPos(5,5)
-        self.model.addGoalPos(5,4)
+        self.prob.defGoalState(0, 0,[(5,1),(5,2) ,(5,3)])#,(5,4),(5,5)])
+        #self.model.addGoalPos(5,5)
+        #self.model.addGoalPos(5,4)
         self.model.addGoalPos(5,3)
         self.model.addGoalPos(5,2)
         self.model.addGoalPos(5,1)
@@ -143,10 +143,17 @@ class Agent:
     def hn(self, state):
         goalBoxes = self.prob.goalState.boxes
         h = 0
-        for goalBox in goalBoxes:
-            for box in state.boxes:
-                h += abs( goalBox[0] - box[0] ) + abs( goalBox[0] - box[0] ) + abs( state.row - box[0] ) + abs( state.col - box[1] )
-        return h
+        distsToAgent = []
+        for i in range(len(goalBoxes)):
+            box = goalBoxes[i]
+            sBox = state.boxes[i]
+            distsToAgent.append( ( abs(sBox[0] - state.row) , abs(sBox[1] - state.col) ) )
+            h += abs( box[0] - sBox[0] ) + abs( box[1] - sBox[1] )
+
+        minDist = min(distsToAgent)
+        h += minDist[0] + minDist[1] # menor distancia entre o agente e as caixas
+        return h 
+        
 
     def cheapestFirstSearch(self, searchType):
         """Realiza busca com a estratégia de custo uniforme ou A* conforme escolha realizada na chamada.
@@ -212,7 +219,8 @@ class Agent:
                 sucState = self.prob.suc(selState, actionIndex)
                 child.state = sucState
                 # Custo g(n): custo acumulado da raiz até o nó filho
-                gnChild = selNode.gn + self.prob.getActionCost(actionIndex)
+                p = 100 if self.prob.isBlockAction(selState) else 0  # penalizamos se é uma ação que bloqueia a solução
+                gnChild = selNode.gn + self.prob.getActionCost(actionIndex) + p
                 if searchType == UNIFORME_COST:
                     child.setGnHn(gnChild, 0) # Deixa h(n) zerada porque é busca de custo uniforme
                 elif searchType == A_START_1:
@@ -225,17 +233,12 @@ class Agent:
                 child.action = actionIndex
                 # INSERE NÓ FILHO NA FRONTEIRA (SE SATISFAZ CONDIÇÕES)
                 alreadyExplored = False
-
-                if selNode.gn > ( len( selNode.state.boxes ) * MAX_BOX_COST ) or self.prob.isBlockAction(selState):
-                    explored.append(selState)
-                    alreadyExplored = True
                 
                 # Testa se estado do nó filho foi explorado
-                if not alreadyExplored:
-                    for node in explored:
-                        if(child.state == node and child.state.row == node.row and child.state.col == node.col ):
-                            alreadyExplored = True
-                            break
+                for node in explored:
+                    if(child.state == node and child.state.row == node.row and child.state.col == node.col ):
+                        alreadyExplored = True
+                        break
 
                 # Testa se estado do nó filho está na fronteira, caso esteja
                 # guarda o nó existente em nFront
