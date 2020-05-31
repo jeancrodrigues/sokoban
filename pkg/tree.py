@@ -22,8 +22,12 @@ class TreeNode:
         self.hn = hn
 
     def getFn(self):
-        """Retorna o valor da função de avaliação f(n)"""
-        return ( self.gn + self.hn , self.gn )# custo de se movimentar ate a caixa esta embutido na heuristica
+        """Retorna o valor da função de avaliação f(n)"""        
+        return self.gn + self.hn         
+
+    def getFnTieBreakHeuristic(self):
+        """Retorna o valor da função de avaliação f(n)"""        
+        return ( self.gn + self.hn , self.hn )# usamos o valor da heuristica como desempate no caso de valores de Fn iguais
 
     def addChild(self):
         """Este método instância um nó de self e cria uma associação entre o pai(self) e o filho.
@@ -40,4 +44,4 @@ class TreeNode:
             print("### Erro na remoção do nó: {}".format(self))
             
     def __str__(self):
-        return "<{0} g:{1:.2f} h:{2:.2f} f:{3:.2f}>".format(self.state, self.gn, self.hn, self.getFn()[1])
+        return "<{0} g:{1:.2f} h:{2:.2f} f:{3:.2f}>".format(self.state, self.gn, self.hn, ( self.gn + self.hn ) )

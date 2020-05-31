@@ -2,7 +2,8 @@ class State:
     """Representa um estado do problema.
     Neste caso, é um par ordenado que representa a linha e a coluna onde se encontra o agente no labirinto."""
 
-    def __init__(self, row, col, boxes):
+    def __init__(self, row, col, boxes, cost):
+        self.cost = cost
         self.row = row
         self.col = col
         self.boxes = boxes

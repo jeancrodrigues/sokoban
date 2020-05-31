@@ -8,8 +8,8 @@ class Problem:
 
 
     def __init__(self):
-        self.initialState = State(0,0,[])
-        self.goalState = State(0,0,[])
+        self.initialState = State(0,0,[],0)
+        self.goalState = State(0,0,[],0)
 
     def createMaze(self, maxRows, maxColumns):
         """Este método instancia um labirinto - representa o que o agente crê ser o labirinto.
@@ -74,12 +74,12 @@ class Problem:
             rowBox = row + rowIncrement[action]
             colBox = col + colIncrement[action]
             if rowBox < 0 or colBox < 0 or rowBox > self.mazeBelief.maxRows - 1 or colBox > self.mazeBelief.maxColumns -1 or self.mazeBelief.walls[rowBox][colBox] == 1:
-                return State( state.row, state.col, boxes )
+                return State( state.row, state.col, boxes , state.cost + 1)
             else:
                 boxes.remove((row,col))
                 boxes.append((rowBox, colBox))
         
-        return State(row, col, boxes)
+        return State(row, col, boxes, state.cost + 1)
 
     def possibleActions(self, state):
         """Retorna as ações possíveis de serem executadas em um estado, desconsiderando movimentos na diagonal.
@@ -167,16 +167,34 @@ class Problem:
         for box in state.boxes:
             if box in self.goalState.boxes: # permite bloquear se for objetivo
                 return False
-
-            if box[0] == 0 or box[0] == self.mazeBelief.maxRows - 1:
-                if box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1 :
-                    blocked = True
-                elif walls[box[0]][box[1]-1] == 1 or  walls[box[0]][box[1]+1] == 1:
-                    blocked = True
-            elif box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1:
-                if walls[box[0]-1][box[1]] == 1 or  walls[box[0]+1][box[1]] == 1:
-                    blocked = True
-        return blocked            
+            if not blocked:
+                if box[0] == 0 or box[0] == self.mazeBelief.maxRows - 1:
+                    if box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1 :
+                        blocked = True
+                    elif walls[box[0]][box[1]-1] == 1 or  walls[box[0]][box[1]+1] == 1:
+                        blocked = True
+                    else:
+                        blocked = not any( [ gbox[0] == box[0] for gbox in self.goalState.boxes ] )
+                elif box[1] == 0 or box[1] == self.mazeBelief.maxColumns - 1:
+                    if walls[box[0]-1][box[1]] == 1 or  walls[box[0]+1][box[1]] == 1:
+                        blocked = True
+                    else:
+                        blocked = not any( [ gbox[1] == box[1] for gbox in self.goalState.boxes ] )
+        return blocked
+    
+    def checkWall(self, sbox, dbox):
+        walls = self.mazeBelief.walls
+        wall = False
+        srow = min([sbox[0], dbox[0]])
+        drow = max([sbox[0], dbox[0]])
+        scol = min([sbox[1], dbox[1]])
+        dcol = max([sbox[1], dbox[1]])        
+        if srow == drow:
+            wall += 2 if any([ walls[srow][i] for i in range(scol,dcol+1) ]) else 0
+                            
+        if scol:
+            wall += 2 if any( [ walls[i][scol] for i in range(srow, drow + 1) ] ) else 0
+        return wall 
 
     def getActionCost(self, action):
         """Retorna o custo da ação.
