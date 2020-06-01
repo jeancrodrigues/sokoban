@@ -4,17 +4,20 @@ from state import State
 from cardinal import action
 from tree import TreeNode
 
-LIMITE_BUSCA = 53 # teste para encontrar 
+VERIFICA_ACAO_BLOQUEIO = True
+VERIFICA_LIMITE = True
+
+LIMITE_BUSCA = 52 # limite de profundidade de busca no caminho
 
 UNIFORME_COST = 0
-A_START_1 = 1
-A_START_2 = 2
-A_START_3 = 3
-A_START_4 = 4
-A_START_5 = 5
-A_START_6 = 6
-A_START_7 = 7
-A_START_8 = 8
+
+# heuristicas implementadas
+HEURISTICA_DISTS = 3
+HEURISTICA_DISTS_PEN_OBSTACULOS = 4
+H_OPT = 6
+H_EUCL = 7
+H_OPT_PEN = 8
+
 # Funções utilitárias
 def printExplored(explored):
     """Imprime os nós explorados pela busca.
@@ -80,7 +83,7 @@ class Agent:
     def deliberate(self):
         # Primeira chamada, realiza busca para elaborar um plano
         if self.counter == -1: 
-            self.plan = self.cheapestFirstSearch(6) # 0 = custo uniforme, 1 = A* com colunas, 2 = A* com dist Euclidiana
+            self.plan = self.cheapestFirstSearch(H_OPT) # 0 = custo uniforme, 1 = A* com colunas, 2 = A* com dist Euclidiana
             if self.plan != None:
                 self.printPlan()
             else:
@@ -123,21 +126,6 @@ class Agent:
         pos = self.model.agentPos
         return State(pos[0],pos[1],self.model.boxPos,0)
 
-    def hn1(self, state):
-        """Implementa uma heurísitca - número 1 - para a estratégia A*.
-        No caso hn1 é a distância em coluna do estado passado com argumento até o estado objetivo.
-        @param state: estado para o qual se quer calcular o valor de h(n)."""
-        return abs( state.col - self.prob.goalState.col )
-    
-    def hn2(self, state):
-        """Implementa uma heurísitca - número 2 - para a estratégia A*.
-        No caso hn1 é a distância distância euclidiana do estado passado com argumento até o estado objetivo.
-        @param state: estado para o qual se quer calcular o valor de h(n)."""
-        distCol = abs(state.col - self.prob.goalState.col)
-        distRow = abs(state.row - self.prob.goalState.row)
-        squared = distRow**2 + distCol**2
-        return squared ** 0.5
-
     def hn(self, state):
         goalBoxes = self.prob.goalState.boxes
         h = 0
@@ -176,46 +164,6 @@ class Agent:
         h += minDist # menor distancia entre o agente e as caixas
         return h
     
-    def hn5(self, state):
-        goalBoxes = self.prob.goalState.boxes
-        h = 0
-        distsToAgent = []
-        for i in range(len(goalBoxes)):
-            box = goalBoxes[i]
-            sBox = state.boxes[i]
-            distsToAgent.append( abs(sBox[0] - state.row) + abs(sBox[1] - state.col) )
-            h += abs( box[0] - sBox[0] ) + abs( box[1] - sBox[1] )
-        h += sum(distsToAgent) # soma das distancias entre o agente e as caixas
-        return h 
-    
-    def hn4(self, state): # media distancia euclidiana entre todas as caixas
-        goalBoxes = self.prob.goalState.boxes
-        h = 0
-        distsToAgent = []
-        for i in range(len(goalBoxes)):
-            box = goalBoxes[i]
-            sBox = state.boxes[i]
-            distsToAgent.append( ( abs(sBox[0] - state.row) , abs(sBox[1] - state.col) ) )
-            h += abs( box[0] - sBox[0] ) + abs( box[1] - sBox[1] )
-
-        minDist = min(distsToAgent)
-        h += minDist[0] + minDist[1] # menor distancia entre o agente e as caixas
-        return h 
-        
-    def hnEuclidiana(self, state):
-        goalBoxes = self.prob.goalState.boxes
-        h = 0
-        distsToAgent = []
-        for i in range(len(goalBoxes)):
-            box = goalBoxes[i]
-            sBox = state.boxes[i]
-            distsToAgent.append( ( abs(sBox[0] - state.row) , abs(sBox[1] - state.col) ) )
-            h += abs( box[0] - sBox[0] ) + abs( box[1] - sBox[1] )
-
-        minDist = min(distsToAgent)
-        h += minDist[0] + minDist[1] # menor distancia entre o agente e as caixas
-        return h 
-
     def hnOptm(self, state):
         distsg = [(state.row, state.col)]
         distsg += [ box for box in self.prob.goalState.boxes ]
@@ -307,45 +255,50 @@ class Agent:
 
             # Obtem ações possíveis para o estado selecionado para expansão
             actions = self.prob.possibleActions(selState) # actions é do tipo [-1, -1, -1, 1 ]
-            
+            if selNode.gn >= LIMITE_BUSCA and VERIFICA_LIMITE:
+                continue
+
             for actionIndex, act in enumerate(actions):
                 if(act < 0): # Ação não é possível
                     continue
 
                 # INSERE NÓ FILHO NA ÁRVORE DE BUSCA - SEMPRE INSERE, DEPOIS
                 # VERIFICA SE O INCLUI NA FRONTEIRA OU NÃO
-                # Instancia o filho ligando-o ao nó selecionado (nSel)  
-                child = selNode.addChild()
                 # Obtem o estado sucessor pela execução da ação <act>
                 sucState = self.prob.suc(selState, actionIndex)
+                
+                # verifica se a acao sucessora bloqueia o tabuleiro
+                if( VERIFICA_ACAO_BLOQUEIO and self.prob.isBlockAction(sucState)):
+                    continue
+                
+                # Instancia o filho ligando-o ao nó selecionado (nSel)  
+                child = selNode.addChild()
                 child.state = sucState
+
                 # Custo g(n): custo acumulado da raiz até o nó filho
-                p = 100 if self.prob.isBlockAction(sucState) else 0  # penalizamos se é uma ação que bloqueia a solução
-                p+= 100 if selNode.gn + self.prob.getActionCost(actionIndex) > 51 else 0  
-                gnChild = selNode.gn + self.prob.getActionCost(actionIndex) + p
+                gnChild = selNode.gn + self.prob.getActionCost(actionIndex)
                 
                 if searchType == UNIFORME_COST:
                     child.setGnHn(gnChild, 0) # Deixa h(n) zerada porque é busca de custo uniforme
-                elif searchType == A_START_1:
-                    child.setGnHn(gnChild, self.hn1(sucState) )
-                elif searchType == A_START_2:
-                    child.setGnHn(gnChild, self.hn2(sucState) )
-                elif searchType == A_START_3:
+
+                elif searchType == HEURISTICA_DISTS:
                     child.setGnHn(gnChild, self.hn(sucState) )
-                elif searchType == A_START_4:
+
+                elif searchType == HEURISTICA_DISTS_PEN_OBSTACULOS:
                     child.setGnHn(gnChild, self.hnwall(sucState) )
-                elif searchType == A_START_5:
-                    child.setGnHn(gnChild, self.hn5(sucState) )
-                elif searchType == A_START_6:
+
+                elif searchType == H_OPT:
                     child.setGnHn(gnChild, self.hnOptm(sucState) )
-                elif searchType == A_START_7:
+
+                elif searchType == H_EUCL:
                     child.setGnHn(gnChild, self.hnOptmEucl(sucState) )
-                elif searchType == A_START_8:
+
+                elif searchType == H_OPT_PEN:
                     child.setGnHn(gnChild, self.hnOptmWall(sucState) )
                 child.action = actionIndex
                 # INSERE NÓ FILHO NA FRONTEIRA (SE SATISFAZ CONDIÇÕES)
                 alreadyExplored = False
-                
+
                 # Testa se estado do nó filho foi explorado
                 for node in explored:
                     if(child.state == node and child.state.row == node.row and child.state.col == node.col and child.state.cost >= node.cost ):

@@ -14,7 +14,7 @@ def main():
     model = Model(mazeRows, mazeColumns)
     buildMaze(model)
 
-    # Define a posição inicial do agente no ambiente - corresponde ao estado inicial
+    # Define a posicao inicial do agente no ambiente - corresponde ao estado inicial
     model.setAgentPos(3,0)
     model.addBoxPos(1,1)
     model.addBoxPos(1,3)
@@ -26,7 +26,7 @@ def main():
     agent = Agent(model)
 
     model.draw()
-    print("\n Início do ciclo de raciocínio do agente \n")
+    print("\n Início do ciclo de raciocinio do agente \n")
     while agent.deliberate() != -1:
         model.draw()
 
