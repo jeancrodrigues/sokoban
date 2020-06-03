@@ -73,7 +73,14 @@ class Problem:
         if ( row, col ) in boxes :
             rowBox = row + rowIncrement[action]
             colBox = col + colIncrement[action]
-            if rowBox < 0 or colBox < 0 or rowBox > self.mazeBelief.maxRows - 1 or colBox > self.mazeBelief.maxColumns -1 or self.mazeBelief.walls[rowBox][colBox] == 1:
+
+            rowSecondBox = rowBox + rowIncrement[action]
+            colSecondBox = colBox + colIncrement[action]
+
+            if ( rowSecondBox, colSecondBox ) in boxes : # se tem duas caixas seguidas
+                return State( state.row, state.col, boxes , state.cost + 1)
+
+            elif rowBox < 0 or colBox < 0 or rowBox > self.mazeBelief.maxRows - 1 or colBox > self.mazeBelief.maxColumns -1 or self.mazeBelief.walls[rowBox][colBox] == 1:
                 return State( state.row, state.col, boxes , state.cost + 1)
             else:
                 boxes.remove((row,col))

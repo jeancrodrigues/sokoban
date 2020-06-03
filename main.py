@@ -1,9 +1,10 @@
 import sys
 sys.path.append('pkg')
 from model import Model
-from agent import Agent
+from agentgenetic import Agent
 
 def buildMaze(model):
+    
     model.maze.putVerticalWall(2,4,3)
     model.maze.putHorizontalWall(0,1,2)
     
@@ -17,9 +18,9 @@ def main():
     # Define a posicao inicial do agente no ambiente - corresponde ao estado inicial
     model.setAgentPos(3,0)
     model.addBoxPos(1,1)
-    model.addBoxPos(1,3)
-    model.addBoxPos(2,2)
-    #model.addBoxPos(3,4)
+    #model.addBoxPos(1,3)
+    #model.addBoxPos(2,2)
+    model.addBoxPos(3,4)
     #model.addBoxPos(4,1)
     
     # Cria um agente
