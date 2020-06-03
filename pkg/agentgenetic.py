@@ -22,9 +22,9 @@ H_OPT = 6
 H_EUCL = 7
 H_OPT_PEN = 8
 
-POPULATION=5000
+POPULATION=1000
 GENERATIONS=200
-PROB_MUT=0.1
+PROB_MUT=0.2
 PROB_CROSS=0.9
 
 # Funções utilitárias
@@ -198,6 +198,18 @@ class Agent:
             pos = 0 if i == len(dists) else i
             h += abs( dists[i][0] - distsg[pos][0] ) + abs( dists[i][1] - distsg[pos][1] )
         return h
+    
+    def hnOptmEuclNoAgent(self, state):
+        
+        distsg = [ box for box in self.prob.goalState.boxes ]
+        dists = [ box for box in state.boxes ]
+        distsg.sort()
+        dists.sort()
+        h = 0
+        for i in range(len(dists)):
+            h += abs( dists[i][0] - distsg[i][0] ) ** 2
+            h += abs( dists[i][1] - distsg[i][1] ) ** 2
+        return h ** 0.5
 
     def hnOptmWall(self, state):
         distsg = [(state.row, state.col)]
@@ -228,7 +240,7 @@ class Agent:
         return h ** 0.5
 
     def geneticSearch(self):
-        actionsCount = 40
+        actionsCount = 80
         population = self.generate(actionsCount, POPULATION)
         mutate_only_childs = True
         for gen in range(GENERATIONS):
@@ -494,7 +506,7 @@ class Agent:
             print("plan goalstate")
             plan[actionsCount] = 0
         else:
-            heuristic = self.hnOptmEucl(state) + ( 1000 if self.prob.isBlockAction(state) else 0 )
+            heuristic = self.hnOptmEuclNoAgent(state) + ( 1000 if self.prob.isBlockAction(state) else 0 )
             plan[actionsCount] = heuristic
 
 
