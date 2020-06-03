@@ -118,7 +118,7 @@ class Model:
             elif row < 0 or row >= self.maze.maxRows:
                 row = self.agentPos[0]
                 col = self.agentPos[1]
-            elif self.boxes[boxRow][boxCol] == 1 or  self.maze.walls[boxRow][boxCol] == 1:: # verifica se tem outra caixa na sequencia ou parede
+            elif self.boxes[boxRow][boxCol] == 1 or self.maze.walls[boxRow][boxCol] == 1: # verifica se tem outra caixa na sequencia ou parede
                 row = self.agentPos[0]
                 col = self.agentPos[1]
             else:

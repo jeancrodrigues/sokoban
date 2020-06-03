@@ -240,46 +240,55 @@ class Agent:
         return h ** 0.5
 
     def geneticSearch(self):
-        actionsCount = 80
-        population = self.generate(actionsCount, POPULATION)
-        mutate_only_childs = True
-        for gen in range(GENERATIONS):
-             
-            initialState = State(self.prob.initialState.row, self.prob.initialState.col, [ box for box in self.prob.initialState.boxes], self.prob.initialState.cost)
-            for pop in population:
-                self.fitness(pop, actionsCount, initialState)
-            
-            childs = []
-            pairs = self.roulette(population,actionsCount)
-            for i in range( len(pairs) - 2 ):
-                if random.random() < PROB_CROSS:
-                    
-                    for child in self.crossover(pairs[i],pairs[i+1]):
-                        childs.append(child)
-            
-            if mutate_only_childs:
-                for plan in childs:
-                    self.mutation(plan, actionsCount)
-                    population.append(plan)
-            else:
-                for child in childs:
-                    population.append(childs)
-                for plan in population:
-                    self.mutation(plan, actionsCount)
+        actionsCount = 100
+        
+        while True:            
+            populationSize = POPULATION + ( ( 100 - actionsCount ) * 20 )
+
+            population = self.generate(actionsCount, populationSize)
+            mutate_only_childs = True
+            gen = 0
+            while(True):
+
+                initialState = State(self.prob.initialState.row, self.prob.initialState.col, [ box for box in self.prob.initialState.boxes], self.prob.initialState.cost)
+                for pop in population:
+                    self.fitness(pop, actionsCount, initialState)
                 
+                childs = []
+                pairs = self.roulette(population,actionsCount)
+                for i in range( len(pairs) - 2 ):
+                    if random.random() < PROB_CROSS:
+                        
+                        for child in self.crossover(pairs[i],pairs[i+1]):
+                            childs.append(child)
+                
+                if mutate_only_childs:
+                    for plan in childs:
+                        self.mutation(plan, actionsCount)
+                        population.append(plan)
+                else:
+                    for child in childs:
+                        population.append(childs)
+                    for plan in population:
+                        self.mutation(plan, actionsCount)
+                    
 
-            initialState = State(self.prob.initialState.row, self.prob.initialState.col, [ box for box in self.prob.initialState.boxes], self.prob.initialState.cost)
-            population = self.survival(population, initialState, actionsCount)
-            
-            if(population[0][actionsCount] == 0):
-                print("break")
-                print(population[0][actionsCount])
+                initialState = State(self.prob.initialState.row, self.prob.initialState.col, [ box for box in self.prob.initialState.boxes], self.prob.initialState.cost)
+                population = self.survival(population, initialState, actionsCount, populationSize)
+                
+                if(population[0][actionsCount] == 0):
+                    print("break")
+                    print(population[0][actionsCount])
+                    print(population[0])
+                    break
+
                 print(population[0])
-
-                break
-
-            print(population[0])
-            print(gen)
+                print(gen)
+                gen += 1
+            
+            print("actionCount")
+            print(actionsCount)
+            actionsCount -= 1
 
         return population[0][:actionsCount]
 
@@ -510,12 +519,12 @@ class Agent:
             plan[actionsCount] = heuristic
 
 
-    def survival(self, population, initialState, actionsCount):
+    def survival(self, population, initialState, actionsCount, populationSize):
         for plan in population:
             self.fitness(plan, actionsCount, initialState)
         
         population.sort(key=lambda x : int(x[actionsCount]))
         
-        return population[:POPULATION]
+        return population[:populationSize]
 
 
