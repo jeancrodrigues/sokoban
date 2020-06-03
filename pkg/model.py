@@ -101,6 +101,7 @@ class Model:
         if self.boxes[row][col] == 1:
             boxRow = row
             boxCol = col
+
             if direction == N:
                 boxRow -= 1
             if direction == L:
@@ -109,9 +110,21 @@ class Model:
                 boxRow += 1
             if direction == O:
                 boxCol -= 1
-            self.boxes[row][col] = 0
-            self.boxes[boxRow][boxCol] = 1
-            self.boxPos.remove((row, col))
-            self.boxPos.append((boxRow, boxCol))
+
+             # Verifica se está fora do grid
+            if boxCol < 0 or boxCol >= self.maze.maxColumns:
+                row = self.agentPos[0]
+                col = self.agentPos[1]
+            elif row < 0 or row >= self.maze.maxRows:
+                row = self.agentPos[0]
+                col = self.agentPos[1]
+            elif self.boxes[boxRow][boxCol] == 1 or  self.maze.walls[boxRow][boxCol] == 1:: # verifica se tem outra caixa na sequencia ou parede
+                row = self.agentPos[0]
+                col = self.agentPos[1]
+            else:
+                self.boxes[row][col] = 0
+                self.boxes[boxRow][boxCol] = 1
+                self.boxPos.remove((row, col))
+                self.boxPos.append((boxRow, boxCol))
 
         self.setAgentPos(row, col)
