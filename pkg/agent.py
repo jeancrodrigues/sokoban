@@ -230,7 +230,7 @@ class Agent:
         frontier.append(root)
 
         # cria EXPLORADOS - inicialmente vazia
-        explored = []
+        explored = {}
 
         print("\n*****\n***** INICIALIZAÇÃO ÁRVORE DE BUSCA\n*****\n")
         print("\n{0:<30}{1}".format("Nós na árvore: ",treeNodesCt))
@@ -250,9 +250,9 @@ class Agent:
             if selState == self.prob.goalState:
                 solution = selNode
                 break
-            explored.append(selState)
+            explored[ str(selState.row) + str(selState.col) + str(selState.boxes) ] = selState 
             #printExplored(explored)
-
+            
             # Obtem ações possíveis para o estado selecionado para expansão
             actions = self.prob.possibleActions(selState) # actions é do tipo [-1, -1, -1, 1 ]
             if selNode.gn >= LIMITE_BUSCA and VERIFICA_LIMITE:
@@ -300,10 +300,11 @@ class Agent:
                 alreadyExplored = False
 
                 # Testa se estado do nó filho foi explorado
-                for node in explored:
-                    if(child.state == node and child.state.row == node.row and child.state.col == node.col and child.state.cost >= node.cost ):
+                expHash = str(child.state.row) + str(child.state.col) + str(child.state.boxes)
+                if expHash in explored:
+                    exp = explored[expHash]
+                    if( child.state.cost >= exp.cost ):
                         alreadyExplored = True
-                        break
 
                 # Testa se estado do nó filho está na fronteira, caso esteja
                 # guarda o nó existente em nFront
@@ -319,7 +320,7 @@ class Agent:
                     if nodeFront == None:
                         # adiciona na fronteira se a acao nao bloqueia a solucao
                         frontier.append(child)
-                        frontier.sort(key=lambda x: x.getFn()) # Ordena a fronteira pelo f(n), ascendente
+                        frontier.sort(key=lambda x: ( x.getFn() , x.hn ) ) # Ordena a fronteira pelo f(n), usando o valor de hn como desempate
                         treeNodesCt += 1
                         
                     else:
